@@ -12,34 +12,11 @@ export class Wallet {
   isOld: boolean;
 
   @Prop()
-  ethBalance: Number
+  ethBalance: number;
+
+  @Prop()
+  isFav: boolean
 
 }
 
 export const WalletSchema = SchemaFactory.createForClass(Wallet);
-
-// import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-// import { Document  } from 'mongoose';
-
-// @Schema()
-// export class Wallet extends Document {
-
-//     @Prop()
-//     address: string;
-
-//     @Prop()
-//     isOld: boolean;
-
-//     @Prop()
-//     ethBalance: Number
-// }
-
-// export const WalletSchema = SchemaFactory.createForClass(Wallet)
-
-// import { Schema } from 'mongoose';
-
-// export const WalletSchema = new Schema({
-//   address: String,
-//   isOld: Boolean,
-//   ethBalance: Number
-// })

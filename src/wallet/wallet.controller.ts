@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { IWallet } from './interfaces/wallet';
 
@@ -17,6 +17,12 @@ export class WalletController {
   @Get()
   async getWallets() {
     return await this.walletService.getWallets()
+  }
+
+  @Put('/favorite/:address')
+  async changeFavStateForWallet( @Body() requestBody: {isFav: boolean}, @Param('address') address: string ) {
+    const { isFav } = requestBody;
+    return await this.walletService.changeFavStateForWallet(address, isFav);
   }
 
 }

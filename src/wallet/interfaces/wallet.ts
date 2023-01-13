@@ -1,8 +1,9 @@
-import { Document } from "mongoose"
+import { Types } from 'mongoose';
 
 export interface IWallet {
-  _id: any,
+  _id?: string | Types.ObjectId,
   address: string,
   isOld: boolean,
-  ethBalance: number
+  ethBalance: number,
+  isFav?: boolean,
 }

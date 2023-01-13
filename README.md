@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://securitize.io/dist/img/securitize-logo.svg" width="200" alt="Securitize Logo" /></a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://securitize.io/dist/img/securitize-logo.svg" width="500" alt="Securitize Logo" /></a>
 </p>
 
 

@@ -17,9 +17,9 @@ export class WalletService {
     private configService: ConfigService,
   ){}
 
-  async getWallets (){
+  async getWallets (): Promise<[]|IWallet[]>{
 
-    const wallets = await this.walletModel.find({}).lean();
+    const wallets = await this.walletModel.find({});
   
     if(!wallets.length ){
       return [];
@@ -42,7 +42,7 @@ export class WalletService {
     
   }
 
-  async addWallet( address: string): Promise<{ethBalance: number, isOld: boolean, address: string}> {
+  async addWallet( address: string): Promise<IWallet> {
 
     const apiKey = this.configService.get<string>( 'ETHERSCAN_API_KEY' );
 
@@ -72,6 +72,10 @@ export class WalletService {
     })
     return { ethBalance, isOld, address }
 
+  }
+
+  async changeFavStateForWallet(address: string, isFav: boolean){
+    return await this.walletModel.updateOne({ address }, {$set: { isFav } } );
   }
 
 }
