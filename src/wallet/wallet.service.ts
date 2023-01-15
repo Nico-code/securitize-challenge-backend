@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import * as moment from 'moment';
 import { ethers } from 'ethers';
@@ -44,6 +44,11 @@ export class WalletService {
 
   async addWallet( address: string): Promise<IWallet> {
 
+    const addressAlreadyAdded = await this.walletModel.findOne({ address });
+    if( addressAlreadyAdded ) {
+      throw new HttpException('Address already added', HttpStatus.CONFLICT)
+    }
+
     const apiKey = this.configService.get<string>( 'ETHERSCAN_API_KEY' );
 
     const [ balanceResponse, transactionsResponse] = await Promise.all( [
@@ -64,12 +69,14 @@ export class WalletService {
 
     }
 
-    ethBalance = ethers.utils.formatEther(ethBalance);
+    const balance = ethers.utils.formatEther(ethBalance);
+    ethBalance = parseFloat(balance)
     await this.walletModel.create({
       address,
       isOld,
       ethBalance
     })
+
     return { ethBalance, isOld, address }
 
   }
