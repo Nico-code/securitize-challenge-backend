@@ -16,7 +16,7 @@ export class WalletService {
     @InjectModel(Wallet.name) private walletModel: Model<WalletDocument>,
     private configService: ConfigService,
   ){}
-
+  
   async getWallets (): Promise<[]|IWallet[]>{
 
     const wallets = await this.walletModel.find({});
@@ -24,7 +24,7 @@ export class WalletService {
     if(!wallets.length ){
       return [];
     }
-    
+
     const walletsAddresses: string[] = wallets.map( wallet => wallet.address )
     const addressesList: string = walletsAddresses.join(',')
 
@@ -51,33 +51,46 @@ export class WalletService {
 
     const apiKey = this.configService.get<string>( 'ETHERSCAN_API_KEY' );
 
-    const [ balanceResponse, transactionsResponse] = await Promise.all( [
-      axios.get(`https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`),
-      axios.get(`https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=16376689&page=1&offset=10&sort=asc&apikey=${apiKey}`)
-    ] )
+    try {
 
-    let ethBalance = balanceResponse.data.result;
-    let firstAccountTransaction = transactionsResponse.data.result[0];
+      const [ balanceResponse, transactionsResponse] = await Promise.all( [
+        axios.get(`https://api.etherscan.io/api?module=account&action=balance&address=${address}&tag=latest&apikey=${apiKey}`),
+        axios.get(`https://api.etherscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=16376689&page=1&offset=10&sort=asc&apikey=${apiKey}`)
+      ] )
+  
+      let ethBalance = balanceResponse.data.result;
+      let firstAccountTransaction = transactionsResponse.data.result[0];
+  
+      let isOld = false;
+      
+      if( firstAccountTransaction ){
+        let txTimestamp = firstAccountTransaction.timeStamp;
+        let limitDate = moment().subtract(1, 'year');
+  
+        isOld = moment( parseInt(txTimestamp) ).isSameOrBefore( limitDate );
+  
+      }
+  
+      const balance = ethers.utils.formatEther(ethBalance);
+      ethBalance = parseFloat(balance)
+      await this.walletModel.create({
+        address,
+        isOld,
+        ethBalance
+      })
+  
+      return { ethBalance, isOld, address }
 
-    let isOld = false;
-    
-    if( firstAccountTransaction ){
-      let txTimestamp = firstAccountTransaction.timeStamp;
-      let limitDate = moment().subtract(1, 'year');
+    } catch(e) {
 
-      isOld = moment( parseInt(txTimestamp) ).isSameOrBefore( limitDate );
-
+      if(e.value === "Error! Invalid address format"){
+        throw new HttpException(e.value, HttpStatus.FORBIDDEN)
+      } else {
+        throw new HttpException('Server error', HttpStatus.INTERNAL_SERVER_ERROR)
+      }
     }
 
-    const balance = ethers.utils.formatEther(ethBalance);
-    ethBalance = parseFloat(balance)
-    await this.walletModel.create({
-      address,
-      isOld,
-      ethBalance
-    })
-
-    return { ethBalance, isOld, address }
+    
 
   }
 
