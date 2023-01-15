@@ -10,7 +10,7 @@ export class WalletController {
   ){}
 
   @Post(':address')
-  async getWalletData( @Param('address') address): Promise<{ethBalance: number, isOld: boolean, address: string}> {
+  async addAWalletByAddress( @Param('address') address): Promise<{ethBalance: number, isOld: boolean, address: string}> {
     return await this.walletService.addWallet(address)
   }
 
