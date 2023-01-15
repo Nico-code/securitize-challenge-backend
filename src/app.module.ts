@@ -12,7 +12,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     ConfigModule.forRoot( {
       isGlobal: true,
     } ),
-    MongooseModule.forRoot('mongodb://127.0.0.1/securitize-test'),
+    MongooseModule.forRoot( process.env.DATA_BASE_URI ),
     WalletModule,
     ExchangeRatesModule
  ],
